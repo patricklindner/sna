@@ -1,5 +1,4 @@
 import csv
-
 import networkx as nx
 
 
@@ -12,16 +11,10 @@ def load_graph(filename):
         for line in tsv_reader:
             G.add_edge(line[0], line[1], weight=line[4])
 
-
-
     return G
-
-
-
 
 G = load_graph("data/soc-redditHyperlinks-title.tsv")
 
-print(nx.number_conncted_components(G))
 
-
-
+print(G)
+print(nx.number_connected_components(G))
