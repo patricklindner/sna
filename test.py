@@ -1,18 +1,8 @@
-import csv
 import networkx as nx
 import matplotlib.pyplot as plt
 
+from util import load_graph
 
-def load_graph(filename):
-    G = nx.DiGraph()
-    with open(filename) as file:
-        tsv_reader = csv.reader(file, delimiter="\t")
-        next(tsv_reader)
-
-        for line in tsv_reader:
-            G.add_edge(line[0], line[1], weight=line[4])
-
-    return G
 
 def draw_first_x(G, x):
     nx.draw(G.subgraph(list(G.nodes)[:x]), with_labels=False, node_size=10)
@@ -46,6 +36,7 @@ def print_stats(G):
     # connected_components = list(nx.connected_components(G))
     component_sizes = [len(component) for component in connected_components]
     print(f"sizes of connected components: {component_sizes}")
+
 
 G = load_graph("data/soc-redditHyperlinks-title.tsv")
 
