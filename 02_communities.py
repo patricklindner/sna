@@ -1,0 +1,30 @@
+import networkx as nx
+from matplotlib import pyplot as plt
+from networkx import find_cliques, DiGraph, bridges
+
+from util import load_graph
+
+
+def process_cliques(g: DiGraph):
+    undirected = g.to_undirected(reciprocal=True)
+    cliques = find_cliques(undirected)
+    for clique in cliques:
+        if len(clique) > 5:
+            nx.draw(undirected.subgraph(clique), with_labels=True)
+            plt.show()
+
+
+def process_bridges(g: DiGraph):
+    undirected = g.to_undirected(reciprocal=True)
+
+    bridge = bridges(undirected)
+    print(list(bridge))
+
+
+
+
+g = load_graph("data/soc-redditHyperlinks-title.tsv")
+
+process_bridges(g)
+
+
