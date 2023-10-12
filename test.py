@@ -1,8 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-
 from util import load_graph
-
 
 def draw_first_x(G, x):
     nx.draw(G.subgraph(list(G.nodes)[:x]), with_labels=False, node_size=10)
@@ -24,6 +22,17 @@ def print_stats(G):
     betweenness_centrality = dict(sorted(nx.betweenness_centrality(G).items(), key=lambda item: item[1], reverse=True))
     closeness_centrality = dict(sorted(nx.closeness_centrality(G).items(), key=lambda item: item[1], reverse=True))
 
+    uG = G.to_undirected(reciprocal=True)
+
+    d = dict(nx.degree_centrality(G))
+    nx.draw(uG, with_labels=True, font_size=9, nodelist=d, node_size=[v * 1000 for v in d.values()])
+    plt.show()
+    plt.cla()
+    d = dict(nx.betweenness_centrality(G))
+    nx.draw(uG, with_labels=True, font_size=9, nodelist=d, node_size=[v * 1000 for v in d.values()])
+    plt.show()
+
+
     print(f"degree_centrality: {degree_centrality}")
     print(f"betweenness_centrality: {betweenness_centrality}")
     print(f"closeness_centrality: {closeness_centrality}")
@@ -43,6 +52,6 @@ def print_stats(G):
 
 G = load_graph("data/soc-redditHyperlinks-title.tsv")
 
-print_stats(G.subgraph(list(G.nodes)[:100]))
+print_stats(G.subgraph(list(G.nodes)[:500]))
 
 # draw_first_x(G, 1000)
