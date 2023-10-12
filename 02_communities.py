@@ -1,6 +1,7 @@
 import networkx as nx
 from matplotlib import pyplot as plt
 from networkx import find_cliques, DiGraph, bridges
+from networkx.algorithms.community import girvan_newman
 
 from util import load_graph
 
@@ -21,10 +22,14 @@ def process_bridges(g: DiGraph):
     print(list(bridge))
 
 
+def process_girvan_newman(g: DiGraph):
+    communities = girvan_newman(g)
+    for community in communities:
+        print(community)
 
 
 g = load_graph("data/soc-redditHyperlinks-title.tsv")
 
-process_bridges(g)
+process_girvan_newman(g)
 
 
