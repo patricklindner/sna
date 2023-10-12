@@ -6,6 +6,7 @@ def draw_first_x(G, x):
     nx.draw(G.subgraph(list(G.nodes)[:x]), with_labels=False, node_size=10)
     plt.show()
 
+
 def print_stats(G):
     print(f"number of nodes: {len(G.nodes)}")
     print(f"number of edges: {len(G.edges)}")
