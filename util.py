@@ -18,7 +18,7 @@ def load_graph(filename, group_by_year=False):
                 g = graphs_by_year.get(year)
             else:
                 g = solo_graph
-            g.add_edge(line[0], line[1], weight=line[4])
+            g.add_edge(line[0], line[1], weight=int(line[4]))
 
     if group_by_year:
         return graphs_by_year
