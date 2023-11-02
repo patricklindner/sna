@@ -1,6 +1,7 @@
 import itertools
 import csv
 import time
+import logging
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -35,7 +36,10 @@ def process_bridges(g: DiGraph):
     print(list(bridge))
 
 
-def edge_centralities(g: DiGraph):
+def custom_girvan_newman(g: DiGraph, iterations):
+    for i in range(iterations):
+        betweenes_scores = nx.edge_betweenness_centrality(g)
+        print(betweenes_scores)
     pass
 
 
@@ -43,9 +47,9 @@ def process_girvan_newman(g, iterations):
     res = girvan_newman(g)
     current = 1
     start_iteration = time.time()
-    print("Starting first iteration")
+    logging.warning("Starting first iteration")
     for communities in itertools.islice(res, iterations):
-        print(f"Iteration {str(current)}/{str(iterations)} completed in {(time.time() - start_iteration) / 60} minutes")
+        logging.warning(f"Iteration {str(current)}/{str(iterations)} completed in {(time.time() - start_iteration) / 60} minutes")
         start_iteration = time.time()
         current += 1
 
@@ -72,13 +76,13 @@ def read_communities():
 
 if __name__ == '__main__':
     start = time.time()
-    print("Loading graph")
+    logging.warning("Loading graph")
     g = load_graph("data/soc-redditHyperlinks-title.tsv")
     # # #
     g = g.to_undirected(reciprocal=False)
     # g = g.subgraph(largest_connected_component(g))
     #
-    print("graph loaded")
+    logging.warning("graph loaded")
     # nodes_with_degree = g.degree()
     # (largest_hub, degree) = sorted(nodes_with_degree, key=lambda x: x[1])[-1]
     #
@@ -92,6 +96,7 @@ if __name__ == '__main__':
     # nx.draw(g)
     # plt.show()
 
+    # custom_girvan_newman(g, 1)
 
     communities = process_girvan_newman(g, 10)
     print(f"end at {(time.time() - start) / 60 / 60}h")
