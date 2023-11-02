@@ -35,7 +35,7 @@ def process_bridges(g: DiGraph):
     print(list(bridge))
 
 
-def process_girvan_newman(g: Graph, iterations: int):
+def process_girvan_newman(g, iterations):
     res = girvan_newman(g)
     current = 1
     for communities in itertools.islice(res, iterations):
@@ -45,14 +45,14 @@ def process_girvan_newman(g: Graph, iterations: int):
     return communities
 
 
-def write_communities(communities: tuple[set[str]]):
+def write_communities(communities):
     with open("generated/communities.csv", "w", newline="") as file:
         writer = csv.writer(file)
         for community in communities:
             writer.writerow(community)
 
 
-def read_communities() -> tuple[set[str]]:
+def read_communities():
     result = list()
     with open("generated/communities.csv") as file:
         reader = csv.reader(file)
