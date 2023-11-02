@@ -24,4 +24,3 @@ def load_graph(filename, group_by_year=False) -> DiGraph | dict[int, DiGraph]:
         return graphs_by_year
     else:
         return solo_graph
-

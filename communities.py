@@ -1,4 +1,6 @@
 import itertools
+import csv
+import time
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -43,23 +45,52 @@ def process_girvan_newman(g: Graph, iterations: int):
     return communities
 
 
+def write_communities(communities: tuple[set[str]]):
+    with open("generated/communities.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+        for community in communities:
+            writer.writerow(community)
+
+
+def read_communities() -> tuple[set[str]]:
+    result = list()
+    with open("generated/communities.csv") as file:
+        reader = csv.reader(file)
+        for line in reader:
+            result.append(set(line))
+
+    return tuple(result)
+
+
+
 if __name__ == '__main__':
+    start = time.time()
     g = load_graph("data/soc-redditHyperlinks-title.tsv")
+    # #
+    g = g.to_undirected(reciprocal=False)
+    # g = g.subgraph(largest_connected_component(g))
+    #
 
-    g = g.to_undirected(reciprocal=True)
-    g = g.subgraph(largest_connected_component(g))
+    # nodes_with_degree = g.degree()
+    # (largest_hub, degree) = sorted(nodes_with_degree, key=lambda x: x[1])[-1]
+    #
+    # print(largest_hub, degree)
+    #
+    # g = nx.ego_graph(g, largest_hub, radius=3)
+    #
+    # print(g)
+    # g = nx.fast_gnp_random_graph(100, 0.1)
+    #
+    # nx.draw(g)
+    # plt.show()
 
-    nodes_with_degree = g.degree()
-    (largest_hub, degree) = sorted(nodes_with_degree, key=lambda x: x[1])[-1]
 
-    print(largest_hub, degree)
+    communities = process_girvan_newman(g, 10)
+    print(f"end at {(time.time() - start) / 60 / 60}h")
+    write_communities(communities)
 
-    g = nx.ego_graph(g, largest_hub, radius=3)
 
-    print(g)
-    communities = process_girvan_newman(g, 2)
-    print(communities)
-
+    # print(read_communities())
     # nx.draw(g)
     # plt.show()
 
