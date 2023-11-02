@@ -3,7 +3,7 @@ import csv
 from networkx import DiGraph
 
 
-def load_graph(filename, group_by_year=False) -> DiGraph | dict[int, DiGraph]:
+def load_graph(filename, group_by_year=False):
     solo_graph = DiGraph()
     graphs_by_year: dict[int, DiGraph] = {}
     with open(filename) as file:

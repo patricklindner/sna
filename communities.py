@@ -65,9 +65,9 @@ def read_communities() -> tuple[set[str]]:
 
 if __name__ == '__main__':
     start = time.time()
-    g = load_graph("data/soc-redditHyperlinks-title.tsv")
-    # #
-    g = g.to_undirected(reciprocal=False)
+    # g = load_graph("data/soc-redditHyperlinks-title.tsv")
+    # # #
+    # g = g.to_undirected(reciprocal=False)
     # g = g.subgraph(largest_connected_component(g))
     #
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     # g = nx.ego_graph(g, largest_hub, radius=3)
     #
     # print(g)
-    # g = nx.fast_gnp_random_graph(100, 0.1)
+    g = nx.fast_gnp_random_graph(100, 0.1)
     #
     # nx.draw(g)
     # plt.show()
