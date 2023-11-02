@@ -44,7 +44,7 @@ def process_girvan_newman(g, iterations):
     current = 1
     start_iteration = time.time()
     for communities in itertools.islice(res, iterations):
-        print(f"Iteration {str(current)}/{str(iterations)} in {time.time() - start_iteration / 60} minutes")
+        print(f"Iteration {str(current)}/{str(iterations)} in {(time.time() - start_iteration) / 60} minutes")
         start_iteration = time.time()
         current += 1
 
@@ -71,9 +71,9 @@ def read_communities():
 
 if __name__ == '__main__':
     start = time.time()
-    # g = load_graph("data/soc-redditHyperlinks-title.tsv")
+    g = load_graph("data/soc-redditHyperlinks-title.tsv")
     # # #
-    # g = g.to_undirected(reciprocal=False)
+    g = g.to_undirected(reciprocal=False)
     # g = g.subgraph(largest_connected_component(g))
     #
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     # g = nx.ego_graph(g, largest_hub, radius=3)
     #
     # print(g)
-    g = nx.fast_gnp_random_graph(100, 0.1)
+    # g = nx.fast_gnp_random_graph(100, 0.1)
     #
     # nx.draw(g)
     # plt.show()
