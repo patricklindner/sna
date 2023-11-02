@@ -119,8 +119,6 @@ def process_louvine(g):
     nx.write_gml(g.subgraph(coms2[-1]), "generated/cc.gml")
 
 
-def process_homophily(g):
-    pass
 
 def persist(g, name):
     nx.write_gexf((g), f"generated/{name}.gexf")
@@ -143,31 +141,51 @@ def read_communities():
     return tuple(result)
 
 
-def negative_influence_score(g: DiGraph):
+def process_negative_influence_score(g: DiGraph, normalize=True):
     page_ranks = dict(sorted(nx.pagerank(g).items(), key=lambda x: x[1]))
-    print(page_ranks)
     ni_scores = dict()
     max_ni_score = 0
     for node, rank in page_ranks.items():
         edges = g.out_edges(node)
         if len(edges) > 0:
             negative_edges = [e for e in edges if g.get_edge_data(*e)["weight"] < 0]
-            #node_negativity = sum(map(lambda e: g.get_edge_data(*e)["weight"], edges))
+            # node_negativity = sum(map(lambda e: g.get_edge_data(*e)["weight"], edges))
             fraction_negative = len(negative_edges) / len(edges)
             ni_score = rank * fraction_negative
             ni_scores[node] = ni_score
-
             # update max negativity score for normalizing
             if ni_score > max_ni_score:
                 max_ni_score = ni_score
 
     # normalize the score
-    for node, ni_score in ni_scores.items():
-        ni_scores[node] = ni_score / max_ni_score
+    if normalize:
+        for node, ni_score in ni_scores.items():
+            ni_scores[node] = ni_score / max_ni_score
 
     # sort
     ni_scores = dict(sorted(ni_scores.items(), key=lambda x: x[1]))
+    nx.set_node_attributes(g, ni_scores, "ni_score")
+
+    print(dict(list(ni_scores.items())[-20::]))
+
     return ni_scores
+
+
+def process_homophily_analysis(g: DiGraph):
+    ni_scores = nx.get_node_attributes(g, "ni_score")
+    negative_nodes = [node for node, score in ni_scores.items() if score > 0.02]
+    # fraction negative
+    p = len(negative_nodes) / len(ni_scores)
+    min_cross_fraction = 2 * p * (1 - p)
+
+    number_cross_edges = 0
+    for (v1, v2), _ in g.edges.items():
+        if v1 in negative_nodes and v2 not in negative_nodes:
+            number_cross_edges += 1
+
+    fraction_cross_edges = number_cross_edges / len(g.edges.items())
+
+    print(min_cross_fraction, fraction_cross_edges)
 
 
 if __name__ == '__main__':
@@ -180,4 +198,5 @@ if __name__ == '__main__':
 
     # nx.draw(nx.ego_graph(g, "leagueoflegends"), with_labels=True)
     # plt.show()
-    process_bridges(g)
+    process_negative_influence_score(g)
+    #process_homophily_analysis(g)
