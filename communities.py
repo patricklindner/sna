@@ -99,7 +99,7 @@ if __name__ == '__main__':
     # custom_girvan_newman(g, 1)
 
     communities = process_girvan_newman(g, 10)
-    print(f"end at {(time.time() - start) / 60 / 60}h")
+    logging.warning(f"end at {(time.time() - start) / 60 / 60}h")
     write_communities(communities)
 
 
