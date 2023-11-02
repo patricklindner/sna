@@ -35,11 +35,17 @@ def process_bridges(g: DiGraph):
     print(list(bridge))
 
 
+def edge_centralities(g: DiGraph):
+    pass
+
+
 def process_girvan_newman(g, iterations):
     res = girvan_newman(g)
     current = 1
+    start_iteration = time.time()
     for communities in itertools.islice(res, iterations):
-        print("Iteration " + str(current) + " of " + str(iterations))
+        print(f"Iteration {str(current)}/{str(iterations)} in {time.time() - start_iteration / 60} minutes")
+        start_iteration = time.time()
         current += 1
 
     return communities
