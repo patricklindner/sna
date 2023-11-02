@@ -43,8 +43,9 @@ def process_girvan_newman(g, iterations):
     res = girvan_newman(g)
     current = 1
     start_iteration = time.time()
+    print("Starting first iteration")
     for communities in itertools.islice(res, iterations):
-        print(f"Iteration {str(current)}/{str(iterations)} in {(time.time() - start_iteration) / 60} minutes")
+        print(f"Iteration {str(current)}/{str(iterations)} completed in {(time.time() - start_iteration) / 60} minutes")
         start_iteration = time.time()
         current += 1
 
@@ -71,12 +72,13 @@ def read_communities():
 
 if __name__ == '__main__':
     start = time.time()
+    print("Loading graph")
     g = load_graph("data/soc-redditHyperlinks-title.tsv")
     # # #
     g = g.to_undirected(reciprocal=False)
     # g = g.subgraph(largest_connected_component(g))
     #
-
+    print("graph loaded")
     # nodes_with_degree = g.degree()
     # (largest_hub, degree) = sorted(nodes_with_degree, key=lambda x: x[1])[-1]
     #
