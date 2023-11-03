@@ -1,7 +1,7 @@
-import itertools
 import csv
-import time
+import itertools
 import logging
+import time
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -166,7 +166,15 @@ def process_negative_influence_score(g: DiGraph, normalize=True):
     ni_scores = dict(sorted(ni_scores.items(), key=lambda x: x[1]))
     nx.set_node_attributes(g, ni_scores, "ni_score")
 
-    print(dict(list(ni_scores.items())[-20::]))
+    # fig, ax = plt.subplots()
+    # ax.hist(list(ni_scores.values()), bins=100)
+    # ax.set_yscale('log')
+    # plt.xlabel("distribution")
+    # plt.ylabel("ni_score")
+    # plt.show()
+
+    print(ni_scores)
+
 
     return ni_scores
 
