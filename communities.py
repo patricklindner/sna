@@ -24,6 +24,12 @@ def process_cliques(g: DiGraph):
     undirected = g.to_undirected(reciprocal=True)
     cliques_generator = find_cliques(undirected)
     cliques = [x for x in cliques_generator]
+    i = 0
+    for clique in cliques:
+        if len(clique) == 9:
+            nx.write_gexf(g.subgraph(clique), f"generated/clique-{i}.gexf")
+            i += 1
+
     histogram: dict[int, int] = dict()
     for clique in cliques:
         if len(clique) >= 3:
@@ -35,8 +41,8 @@ def process_cliques(g: DiGraph):
     print(histogram)
     x = [f"{x}" for x, y in histogram.items()]
     y = [y for x, y in histogram.items()]
-    plt.bar(x, y)
-    plt.show()
+    # plt.bar(x, y)
+    # plt.show()
 
     nodes = set()
     for clique in cliques:
@@ -47,8 +53,8 @@ def process_cliques(g: DiGraph):
 
     print(nodes)
     print(len(nodes))
-    nx.draw(g.subgraph(nodes), with_labels=True, edge_color="green")
-    plt.show()
+    # nx.draw(g.subgraph(nodes), with_labels=True, edge_color="green")
+    # plt.show()
 
     persist(g.subgraph(nodes), "cliques-9")
     return cliques
@@ -152,10 +158,13 @@ def process_negative_influence_score(g: DiGraph, normalize=True):
             # node_negativity = sum(map(lambda e: g.get_edge_data(*e)["weight"], edges))
             fraction_negative = len(negative_edges) / len(edges)
             ni_score = rank * fraction_negative
-            ni_scores[node] = ni_score
             # update max negativity score for normalizing
             if ni_score > max_ni_score:
                 max_ni_score = ni_score
+        else:
+            ni_score = 0
+        ni_scores[node] = ni_score
+
 
     # normalize the score
     if normalize:
@@ -166,12 +175,12 @@ def process_negative_influence_score(g: DiGraph, normalize=True):
     ni_scores = dict(sorted(ni_scores.items(), key=lambda x: x[1]))
     nx.set_node_attributes(g, ni_scores, "ni_score")
 
-    # fig, ax = plt.subplots()
-    # ax.hist(list(ni_scores.values()), bins=100)
-    # ax.set_yscale('log')
-    # plt.xlabel("distribution")
-    # plt.ylabel("ni_score")
-    # plt.show()
+    fig, ax = plt.subplots()
+    ax.hist(list(ni_scores.values()), bins=100)
+    ax.set_yscale('log')
+    plt.xlabel("distribution")
+    plt.ylabel("ni_score")
+    plt.show()
 
     print(ni_scores)
 
@@ -206,5 +215,7 @@ if __name__ == '__main__':
 
     # nx.draw(nx.ego_graph(g, "leagueoflegends"), with_labels=True)
     # plt.show()
-    process_negative_influence_score(g)
+    # process_negative_influence_score(g)
     #process_homophily_analysis(g)
+    # print(dict(sorted(nx.centrality.degree_centrality(g).items(), key=lambda x: x[1])))
+    process_cliques(g)
