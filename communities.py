@@ -12,7 +12,7 @@ from util import load_graph
 
 
 def largest_connected_component(g: Graph):
-    ccs = nx.connected_components(g)
+    ccs = nx.weakly_connected_components(g)
     largest_cc = list()
     for cc in ccs:
         if len(cc) > len(largest_cc):
@@ -24,11 +24,6 @@ def process_cliques(g: DiGraph):
     undirected = g.to_undirected(reciprocal=True)
     cliques_generator = find_cliques(undirected)
     cliques = [x for x in cliques_generator]
-    i = 0
-    for clique in cliques:
-        if len(clique) == 9:
-            nx.write_gexf(g.subgraph(clique), f"generated/clique-{i}.gexf")
-            i += 1
 
     histogram: dict[int, int] = dict()
     for clique in cliques:
@@ -41,23 +36,30 @@ def process_cliques(g: DiGraph):
     print(histogram)
     x = [f"{x}" for x, y in histogram.items()]
     y = [y for x, y in histogram.items()]
-    # plt.bar(x, y)
-    # plt.show()
+    plt.bar(x, y)
+    plt.xlabel("n")
+    plt.ylabel("Number of Cliques with n Nodes")
+    plt.show()
 
-    nodes = set()
-    for clique in cliques:
-        if len(clique) == 9:
-            print(clique)
-            for node in clique:
-                nodes.add(node)
+    # nodes = set()
+    # i = 0
+    # for clique in cliques:
+    #     if len(clique) >= 7:
+    #         print(clique)
+    #         i += 1
+    #         for node in clique:
+    #             nodes.add(node)
+    #
+    # print(i)
+    # print(nodes)
+    # print(len(nodes))
 
-    print(nodes)
-    print(len(nodes))
+    # persist(g.subgraph(nodes), f"clique-donald")
     # nx.draw(g.subgraph(nodes), with_labels=True, edge_color="green")
     # plt.show()
 
-    persist(g.subgraph(nodes), "cliques-9")
-    return cliques
+    # persist(g.subgraph(nodes), "cliques_le_7")
+    return nodes
 
 
 def process_bridges(g: DiGraph):
@@ -83,19 +85,12 @@ def process_bridges(g: DiGraph):
 def process_girvan_newman(g, iterations):
     res = girvan_newman(g)
     current = 1
-    start_iteration = time.time()
-    logging.warning("Starting first iteration")
     for communities in itertools.islice(res, iterations):
-        logging.warning(
-            f"Iteration {str(current)}/{str(iterations)} completed in {(time.time() - start_iteration) / 60} minutes")
-        start_iteration = time.time()
-        current += 1
+        continue
 
+    print(communities)
     return communities
 
-
-def draw_ego(node):
-    pass
 
 
 def process_louvine(g):
@@ -105,29 +100,46 @@ def process_louvine(g):
 
     coms = sorted(coms, key=lambda x: len(x))
 
+    print(coms)
+    print(len(coms))
+
     histogram = dict()
+    nodes = set()
     for com in coms:
-        if len(com) in histogram:
-            histogram[len(com)] += 1
-        else:
-            histogram[len(com)] = 1
+        if 30 < len(com) < 500:
+            for node in com:
+                nodes.add(node)
+            if len(com) in histogram:
+                histogram[len(com)] += 1
+            else:
+                histogram[len(com)] = 1
 
-    print(histogram)
-    print(coms[-1])
+    print(dict(sorted(histogram.items(), key=lambda x: x[0])))
+    print(len(nodes))
 
-    coms2 = louvain_communities(g.subgraph(coms[-1]), weight=None)
-    print(len(coms2))
-    coms2 = sorted(coms2, key=lambda x: len(x))
-    print(coms2[-1])
+    persist(g.subgraph(nodes), "louvrin30-500")
 
-    nx.write_gexf(g.subgraph(coms2[-1]), "generated/cc.gexf")
-    nx.write_edgelist(g.subgraph(coms2[-1]), "generated/cc.el")
-    nx.write_gml(g.subgraph(coms2[-1]), "generated/cc.gml")
+    x = [f"{x}" for x, y in histogram.items()]
+    y = [y for x, y in histogram.items()]
+    plt.bar(x, y)
+    plt.xlabel("n")
+    plt.ylabel("Number of Communities with n Nodes")
+    plt.show()
+    # print(coms[-1])
+
+    # coms2 = louvain_communities(g.subgraph(coms[-1]), weight=None)
+    # print(len(coms2))
+    # coms2 = sorted(coms2, key=lambda x: len(x))
+    # print(coms2[-1])
+    #
+    # nx.write_gexf(g.subgraph(coms2[-1]), "generated/cc.gexf")
+    # nx.write_edgelist(g.subgraph(coms2[-1]), "generated/cc.el")
+    # nx.write_gml(g.subgraph(coms2[-1]), "generated/cc.gml")
 
 
 
 def persist(g, name):
-    nx.write_gexf((g), f"generated/{name}.gexf")
+    nx.write_gexf(g, f"generated/{name}.gexf")
 
 
 def write_communities(communities):
@@ -182,6 +194,8 @@ def process_negative_influence_score(g: DiGraph, normalize=True):
     plt.ylabel("ni_score")
     plt.show()
 
+    persist(g, "complete-with-niscore")
+
     print(ni_scores)
 
 
@@ -215,7 +229,13 @@ if __name__ == '__main__':
 
     # nx.draw(nx.ego_graph(g, "leagueoflegends"), with_labels=True)
     # plt.show()
-    # process_negative_influence_score(g)
+    #process_negative_influence_score(g)
     #process_homophily_analysis(g)
     # print(dict(sorted(nx.centrality.degree_centrality(g).items(), key=lambda x: x[1])))
-    process_cliques(g)
+
+    # cliques = process_cliques(g)
+    # process_girvan_newman(g.subgraph(cliques), 6)
+
+    # g = nx.ego_graph(g, "leagueoflegends")
+    # persist(g, "league-ego-1d")
+    process_louvine(g)
