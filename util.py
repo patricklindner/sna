@@ -19,8 +19,7 @@ def load_graph(filename, group_by_year=False):
             else:
                 g = solo_graph
 
-            weight = int(line[4])
-            g.add_edge(line[0], line[1], positive=int(line[4]), weight=1, line_width=5 if weight == -1 else 1)
+            g.add_edge(line[0], line[1], positive=int(line[4]), weight=1)
 
     if group_by_year:
         return graphs_by_year

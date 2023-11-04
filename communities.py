@@ -41,18 +41,18 @@ def process_cliques(g: DiGraph):
     plt.ylabel("Number of Cliques with n Nodes")
     plt.show()
 
-    # nodes = set()
-    # i = 0
-    # for clique in cliques:
-    #     if len(clique) >= 7:
-    #         print(clique)
-    #         i += 1
-    #         for node in clique:
-    #             nodes.add(node)
-    #
-    # print(i)
-    # print(nodes)
-    # print(len(nodes))
+    nodes = set()
+    i = 0
+    for clique in cliques:
+        if len(clique) == 9:
+            print(clique)
+            i += 1
+            for node in clique:
+                nodes.add(node)
+
+    print(i)
+    print(nodes)
+    print(len(nodes))
 
     # persist(g.subgraph(nodes), f"clique-donald")
     # nx.draw(g.subgraph(nodes), with_labels=True, edge_color="green")
@@ -66,10 +66,13 @@ def process_bridges(g: DiGraph):
     undirected = g.to_undirected(reciprocal=True)
 
     bridges = list(calc_bridges(undirected))
-    print(len(bridges))
-    print(bridges)
+    #print(len(bridges))
+    #print(bridges)
     histogram = dict()
+    nodes = set()
     for bridge in bridges:
+        nodes.add(bridge[0])
+        nodes.add(bridge[1])
         if bridge[0] in histogram:
             histogram[bridge[0]] += 1
         else:
@@ -79,7 +82,9 @@ def process_bridges(g: DiGraph):
         else:
             histogram[bridge[1]] = 1
 
-    print(dict(sorted(histogram.items(), key=lambda x: x[1])))
+    #print(dict(sorted(histogram.items(), key=lambda x: x[1])))
+    return bridges
+
 
 
 def process_girvan_newman(g, iterations):
@@ -106,18 +111,20 @@ def process_louvine(g):
     histogram = dict()
     nodes = set()
     for com in coms:
-        if 30 < len(com) < 500:
+        if 5 < len(com) < 600:
             for node in com:
-                nodes.add(node)
-            if len(com) in histogram:
-                histogram[len(com)] += 1
-            else:
-                histogram[len(com)] = 1
+                if g.degree(node) >= 4:
+                    nodes.add(node)
+                if len(com) in histogram:
+                    histogram[len(com)] += 1
+                else:
+                    histogram[len(com)] = 1
+
 
     print(dict(sorted(histogram.items(), key=lambda x: x[0])))
     print(len(nodes))
 
-    persist(g.subgraph(nodes), "louvrin30-500")
+    return nodes
 
     x = [f"{x}" for x, y in histogram.items()]
     y = [y for x, y in histogram.items()]
@@ -166,7 +173,7 @@ def process_negative_influence_score(g: DiGraph, normalize=True):
     for node, rank in page_ranks.items():
         edges = g.out_edges(node)
         if len(edges) > 0:
-            negative_edges = [e for e in edges if g.get_edge_data(*e)["weight"] < 0]
+            negative_edges = [e for e in edges if g.get_edge_data(*e)["positive"] < 0]
             # node_negativity = sum(map(lambda e: g.get_edge_data(*e)["weight"], edges))
             fraction_negative = len(negative_edges) / len(edges)
             ni_score = rank * fraction_negative
@@ -222,7 +229,7 @@ def process_homophily_analysis(g: DiGraph):
 if __name__ == '__main__':
     start = time.time()
     logging.warning("Loading graph")
-    g = load_graph("data/soc-redditHyperlinks-title.tsv")
+    g = load_graph("data/soc-redditHyperlinks-title.tsv", group_by_year=True)
     # g = g.to_undirected(reciprocal=True)
     # g = g.subgraph(largest_connected_component(g))
     logging.warning("graph loaded")
@@ -237,5 +244,22 @@ if __name__ == '__main__':
     # process_girvan_newman(g.subgraph(cliques), 6)
 
     # g = nx.ego_graph(g, "leagueoflegends")
-    # persist(g, "league-ego-1d")
-    process_louvine(g)
+    # louvine_nodes = process_louvine(g)
+    # bridge_edges = process_bridges(g)
+    # nodes = set(louvine_nodes)
+    # for node in louvine_nodes:
+    #     for bridge in bridge_edges:
+    #         if node in bridge:
+    #             nodes.add(bridge[0])
+    #             nodes.add(bridge[1])
+    #
+    # g = g.subgraph(nodes)
+    # print(g)
+    # persist(g, "louvrin-5-600_and_bridges")
+    #process_louvine(g)
+
+    for graph in g.values():
+        process_negative_influence_score(graph, normalize=False)
+
+
+    #process_cliques(g)
